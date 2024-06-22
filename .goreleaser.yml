@@ -67,7 +67,7 @@ archives:
       mtime: 2008-01-02T15:04:05Z
     files:
       - README.md
-      - LICENSE.md
+      - LICENSE
 
 sboms:
   - artifacts: archive
