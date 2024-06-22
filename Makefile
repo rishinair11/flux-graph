@@ -14,6 +14,9 @@ build:
 	mkdir -p $(BUILD_DIR)
 	$(GO) build -o $(OUTPUT)
 
+test:
+	$(GO) test -v ./...
+
 # Clean up
 clean:
 	rm -rf $(BUILD_DIR)
