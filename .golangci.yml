@@ -1,0 +1,27 @@
+run:
+  go: "1.22.3"
+  concurrency: 8
+  timeout: 5m
+  build-tags:
+    - make
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+linters-settings:
+  misspell:
+    locale: US
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - staticcheck
+    - typecheck
+    - unused

@@ -15,6 +15,10 @@ build:
 	$(GO) build -o $(OUTPUT)
 	@echo "Binary at: $(OUTPUT)"
 
+lint: 
+	@echo "==> Running golangci-lint"
+	@golangci-lint run --config .golangci.yml
+
 test:
 	$(GO) test -v ./...
 

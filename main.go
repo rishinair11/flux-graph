@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -24,7 +23,7 @@ func main() {
 			var err error
 
 			// Read YAML input
-			yamlBytes, err = readYAML(inputFile)
+			yamlBytes, err = readInput(inputFile)
 			if err != nil {
 				log.Fatalf("Failed to read YAML: %v", err)
 			}
@@ -36,12 +35,17 @@ func main() {
 			}
 
 			// Process the graph
-			graph := graph.ProcessGraph(t)
+			graph, err := graph.ProcessGraph(t)
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			// Write the graph to the output file
 			if err := os.WriteFile(outputFile, []byte(graph.String()), 0o755); err != nil {
 				log.Fatalf("Failed to write output file: %v", err)
 			}
+
+			log.Println("Generated graph:", outputFile)
 		},
 	}
 
@@ -49,15 +53,16 @@ func main() {
 	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "graph.dot", "Specify output file")
 
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
-// readYAML reads the YAML input from a file or stdin
-func readYAML(inputFile string) ([]byte, error) {
+// readInput reads the YAML input from a file or stdin
+func readInput(inputFile string) ([]byte, error) {
 	if inputFile != "" {
+		log.Println("Reading from file:", inputFile)
 		return os.ReadFile(inputFile)
 	}
+	log.Println("Reading from STDIN...")
 	return io.ReadAll(os.Stdin)
 }

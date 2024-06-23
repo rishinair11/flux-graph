@@ -10,44 +10,62 @@ import (
 )
 
 // ProcessGraph creates a Graphviz graph from the given ResourceTree
-func ProcessGraph(t *resource.ResourceTree) *gographviz.Graph {
+func ProcessGraph(t *resource.ResourceTree) (*gographviz.Graph, error) {
+	log.Println("Processing tree...")
+
 	graphName := "fluxgraph"
 	g := gographviz.NewGraph()
-	g.SetDir(true)
-	g.SetName(graphName)
-	g.AddAttr(graphName, string(gographviz.RankDir), "LR")
-	g.AddAttr(graphName, string(gographviz.RankSep), "5.0")
+	g.SetDir(true)       //nolint errcheck 'always returns nil'
+	g.SetName(graphName) //nolint errcheck 'always returns nil'
+	if err := g.Attrs.Add(string(gographviz.RankDir), "LR"); err != nil {
+		log.Fatal(err)
+	}
+	if err := g.Attrs.Add(string(gographviz.RankSep), "5.0"); err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize stack and process the root nodes
 	s := stack.New()
-	processRootNodes(g, t, s)
+	if err := processRootNodes(g, t, s); err != nil {
+		return nil, err
+	}
 
 	// Process the graph nodes
-	processOtherNodes(g, s)
+	if err := processOtherNodes(g, s); err != nil {
+		return nil, err
+	}
 
-	return g
+	return g, nil
 }
 
 // processRootNodes processes the root nodes of the resource tree
-func processRootNodes(g *gographviz.Graph, root *resource.ResourceTree, s *stack.Stack) {
+func processRootNodes(g *gographviz.Graph, root *resource.ResourceTree, s *stack.Stack) error {
 	// Add root node to graph
-	g.AddNode(g.Name, getName(root.Resource), getNodeAttrs(root.Resource, root.Resource))
+	if err := g.AddNode(g.Name, getName(root.Resource), getNodeAttrs(root.Resource, root.Resource)); err != nil {
+		return err
+	}
 	for _, child := range root.Resources {
 		// Add child nodes of root node to graph
-		g.AddNode(g.Name, getName(child.Resource), getNodeAttrs(child.Resource, root.Resource))
+		if err := g.AddNode(g.Name, getName(child.Resource), getNodeAttrs(child.Resource, root.Resource)); err != nil {
+			return err
+		}
 		// Add edge from root node to child node
-		g.AddEdge(getName(root.Resource), getName(child.Resource), true, setAttrsColorAndStyle(make(map[string]string), root.Resource.GetKind()))
+		if err := g.AddEdge(getName(root.Resource), getName(child.Resource), true, setAttrsColorAndStyle(make(map[string]string), root.Resource.GetKind())); err != nil {
+			return err
+		}
 
 		s.Push(child)
 	}
+
+	return nil
 }
 
 // processOtherNodes processes the nodes in the graph using a stack
-func processOtherNodes(g *gographviz.Graph, s *stack.Stack) {
+func processOtherNodes(g *gographviz.Graph, s *stack.Stack) error {
 	for {
 		poppedResource := s.Pop()
 		if poppedResource == nil {
-			log.Println("Done!")
+			log.Println("Done processing!")
 			break
 		}
 
@@ -58,13 +76,19 @@ func processOtherNodes(g *gographviz.Graph, s *stack.Stack) {
 
 		for _, child := range parent.Resources {
 			// Add child node of parent node to graph
-			g.AddNode(g.Name, getName(child.Resource), getNodeAttrs(child.Resource, parent.Resource))
+			if err := g.AddNode(g.Name, getName(child.Resource), getNodeAttrs(child.Resource, parent.Resource)); err != nil {
+				return err
+			}
 			// Add edge from parent node to child node
-			g.AddEdge(getName(parent.Resource), getName(child.Resource), true, setAttrsColorAndStyle(make(map[string]string), parent.Resource.GetKind()))
+			if err := g.AddEdge(getName(parent.Resource), getName(child.Resource), true, setAttrsColorAndStyle(make(map[string]string), parent.Resource.GetKind())); err != nil {
+				return err
+			}
 
 			s.Push(child)
 		}
 	}
+
+	return nil
 }
 
 // getName returns the formatted name for a resource
