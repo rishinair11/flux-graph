@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/rishnai1/flux-ks-graph/pkg/graph"
-	"github.com/rishnai1/flux-ks-graph/pkg/resource"
+	"github.com/rishinair11/flux-ks-graph/pkg/graph"
+	"github.com/rishinair11/flux-ks-graph/pkg/resource"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )

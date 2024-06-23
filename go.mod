@@ -1,4 +1,4 @@
-module github.com/rishnai1/flux-ks-graph
+module github.com/rishinair11/flux-ks-graph
 
 go 1.22.3
 

@@ -74,5 +74,5 @@ sboms:
 
 release:
   github:
-    owner: rishnai1
+    owner: rishinair11
     name: flux-graph

@@ -6,7 +6,7 @@ import (
 
 	"github.com/awalterschulze/gographviz"
 	"github.com/golang-collections/collections/stack"
-	"github.com/rishnai1/flux-ks-graph/pkg/resource"
+	"github.com/rishinair11/flux-ks-graph/pkg/resource"
 )
 
 // ProcessGraph creates a Graphviz graph from the given ResourceTree

@@ -3,7 +3,7 @@ package graph
 import (
 	"testing"
 
-	"github.com/rishnai1/flux-ks-graph/pkg/resource"
+	"github.com/rishinair11/flux-ks-graph/pkg/resource"
 	"github.com/stretchr/testify/assert"
 )
 
