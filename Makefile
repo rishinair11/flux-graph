@@ -13,6 +13,7 @@ OUTPUT := $(BUILD_DIR)/$(OS)/$(ARCH)/flux-graph
 build:
 	mkdir -p $(BUILD_DIR)
 	$(GO) build -o $(OUTPUT)
+	@echo "Binary at: $(OUTPUT)"
 
 test:
 	$(GO) test -v ./...
