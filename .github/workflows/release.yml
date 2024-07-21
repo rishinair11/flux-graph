@@ -28,6 +28,10 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
+      - name: Clean modcache
+        run: |
+          make go-clean
+
       - name: Build binary
         run: |
           make build

@@ -25,6 +25,9 @@ test:
 mod-download-tidy:
 	$(GO) mod download && $(GO) mod tidy
 
+go-clean:
+	$(GO) clean -modcache
+
 # Clean up
 clean:
 	rm -rf $(BUILD_DIR)
