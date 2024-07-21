@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	graphviz "github.com/goccy/go-graphviz"
 	"github.com/rishinair11/flux-ks-graph/pkg/graph"
 	"github.com/rishinair11/flux-ks-graph/pkg/resource"
 	"github.com/spf13/cobra"
@@ -37,12 +38,23 @@ func main() {
 			// Process the graph
 			graph, err := graph.ProcessGraph(t)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Failed to construct graph: %v", err)
 			}
 
-			// Write the graph to the output file
-			if err := os.WriteFile(outputFile, []byte(graph.String()), 0o755); err != nil {
-				log.Fatalf("Failed to write output file: %v", err)
+			gvGraph, err := graphviz.ParseBytes([]byte(graph.String()))
+			if err != nil {
+				log.Fatalf("Failed to parse graph dot string: %v", err)
+			}
+			defer gvGraph.Close()
+
+			f, err := os.Create(outputFile)
+			if err != nil {
+				log.Fatalf("Failed to create output file: %v", err)
+			}
+			defer f.Close()
+
+			if err := graphviz.New().RenderFilename(gvGraph, graphviz.PNG, f.Name()); err != nil {
+				log.Fatalf("Failed to write output graph image: %v", err)
 			}
 
 			log.Println("Generated graph:", outputFile)
@@ -50,7 +62,7 @@ func main() {
 	}
 
 	rootCmd.Flags().StringVarP(&inputFile, "file", "f", "", "Specify input file")
-	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "graph.dot", "Specify output file")
+	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "graph.png", "Specify output file")
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)

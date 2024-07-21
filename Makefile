@@ -22,6 +22,9 @@ lint:
 test:
 	$(GO) test -v ./...
 
+mod-download-tidy:
+	$(GO) mod download && $(GO) mod tidy
+
 # Clean up
 clean:
 	rm -rf $(BUILD_DIR)
