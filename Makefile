@@ -1,5 +1,5 @@
 # Go parameters
-GO := go
+GO := CGO_ENABLED=1 go
 BUILD_DIR := dist
 
 # Determine OS and ARCH
