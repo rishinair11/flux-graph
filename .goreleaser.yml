@@ -2,7 +2,9 @@ version: 2
 
 project_name: flux-graph
 builds:
-  - goos:
+  - env:
+      - CGO_ENABLED=1
+    goos:
       - linux
       - windows
       - darwin
