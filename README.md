@@ -17,7 +17,7 @@ Understanding the relationships between Kubernetes resources managed by Flux can
 
 - Accepts the YAML output of `flux tree ks flux-system -o yaml` either from STDIN or from a YAML file.
 - Processes YAML data obtained to create a graph of the relationships between the Flux Kustomizations and child resources.
-- Generates a `.dot` File representing the graph structure which can be later visualized using [`graphviz`](https://graphviz.gitlab.io/).
+- Generates a `.png` file representing the graph structure of the various Flux and Kubernetes resources.
 
 ## How to Use It
 
@@ -27,7 +27,6 @@ Understanding the relationships between Kubernetes resources managed by Flux can
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/) configured to access your cluster.
 - [`flux`](https://fluxcd.io/flux/cmd/)
 - [`go`](https://go.dev/doc/install) (only if building from source).
-- [`dot`](https://graphviz.gitlab.io/download/) for visualizing the generated `.dot` file.
 
 ### Installation
 
@@ -54,26 +53,20 @@ Usage:
 Flags:
   -f, --file string     Specify input file
   -h, --help            help for flux-graph
-  -o, --output string   Specify output file (default "graph.dot")
+  -o, --output string   Specify output file (default "graph.png")
 ```
 
 Either pipe the Flux tree output directly to `flux-graph`:
 ```bash
-flux tree ks flux-system -o yaml | flux-graph -o graph.dot
+flux tree ks flux-system -o yaml | flux-graph
 ```
 Or, specify a YAML file to read from:
 ```bash
 flux tree ks flux-system -o yaml > tree.yaml
-flux-graph -f tree.yaml -o graph.dot
+flux-graph -f tree.yaml
 ```
 
-Then generate an SVG file using the `dot` tool:
-```bash
-# SVG
-dot -Tsvg graph.dot > graph.svg
-# PNG
-dot -Tpng graph.dot > graph.png
-```
+Then view the `.png` file generated using a PNG viewer or browser of your choice.
 
 ## License
 This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICENSE) file for details.
