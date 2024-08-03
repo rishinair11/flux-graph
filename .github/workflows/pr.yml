@@ -13,6 +13,11 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+
     steps:
     - uses: actions/checkout@v4
 
@@ -27,8 +32,8 @@ jobs:
         version: v1.59.0
         args: --config=./.golangci.yml
 
-    - name: Build
-      run: make build
-
     - name: Test
       run: make test
+
+    - name: Build
+      run: OS=${{ matrix.goos }} ARCH=${{ matrix.goarch }} make build
