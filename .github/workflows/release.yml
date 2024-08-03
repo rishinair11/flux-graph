@@ -7,8 +7,8 @@ on:
       - "*"
 
 jobs:
-  build-and-release:
-    name: Build and Release
+  build-and-release-linux:
+    name: Build and Release Linux Binaries
     runs-on: ubuntu-latest
 
     steps:
@@ -19,29 +19,65 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 1.22.3
-
-      - name: Install goreleaser
-        run: |
-          curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s -- -b $(go env GOPATH)/bin v2.0.1
       
-      - name: Install syft
+      - name: Install dependencies
         run: |
+          sudo apt-get update -y
+          sudo apt-get install -y gcc-aarch64-linux-gnu
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Clean modcache
-        run: |
-          make go-clean
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
-      - name: Build binary
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: "v2.1.0"
+          args: release --clean --parallelism=1 --config=.goreleaser-linux.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+
+  build-and-release-darwin:
+    name: Build and Release Darwin Binaries
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.3
+
+      - name: Install dependencies
         run: |
-          make build
+          brew install coreutils
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
           version: "v2.0.1"
-          args: release --clean
+          args: release --clean --parallelism=1 --config=.goreleaser-darwin.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-
