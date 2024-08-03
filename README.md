@@ -17,7 +17,8 @@ Understanding the relationships between Kubernetes resources managed by Flux can
 
 - Accepts the YAML output of `flux tree ks flux-system -o yaml` either from STDIN or from a YAML file.
 - Processes YAML data obtained to create a graph of the relationships between the Flux Kustomizations and child resources.
-- Generates a `.png` file representing the graph structure of the various Flux and Kubernetes resources.
+- Generates a `.svg` file representing the graph structure of the various Flux and Kubernetes resources.
+- **NEW!** Serves the SVG file in a local web server using an SVG Image Viewer with zooming and panning capabilities for easier viewing.
 
 ## How to Use It
 
@@ -51,9 +52,12 @@ Usage:
   flux-graph [flags]
 
 Flags:
-  -f, --file string     Specify input file
-  -h, --help            help for flux-graph
-  -o, --output string   Specify output file (default "graph.png")
+  -d, --direction string   Specify direction of graph (https://graphviz.gitlab.io/docs/attrs/rankdir) (default "TB")
+  -f, --file string        Specify input file
+  -h, --help               help for flux-graph
+  -n, --no-serve           Don't serve the graph on a web server
+  -o, --output string      Specify output file (default "graph.svg")
+  -p, --port string        Specify web server port (default "9000")
 ```
 
 Either pipe the Flux tree output directly to `flux-graph`:
@@ -66,7 +70,7 @@ flux tree ks flux-system -o yaml > tree.yaml
 flux-graph -f tree.yaml
 ```
 
-Then view the `.png` file generated using a PNG viewer or browser of your choice.
+Then visit "https://localhost:9000" to view your Flux resources in a SVG graph format.
 
 ## License
 This project is licensed under the Apache 2.0 License - see the [LICENSE](./LICENSE) file for details.
