@@ -1,8 +1,28 @@
 package resource
 
+import (
+	"github.com/rishinair11/flux-ks-graph/pkg/util"
+	"gopkg.in/yaml.v3"
+)
+
 type ResourceTree struct {
 	Resource  Resource       `yaml:"resource"`
 	Resources []ResourceTree `yaml:"resources"`
+}
+
+// NewResourceTree parses a Flux 'tree' YAML file and returns a ResourceTree
+func NewResourceTree(fileName string) (*ResourceTree, error) {
+	yamlBytes, err := util.ReadInput(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	rt := &ResourceTree{}
+	if err := yaml.Unmarshal(yamlBytes, rt); err != nil {
+		return nil, err
+	}
+
+	return rt, nil
 }
 
 type Resource struct {

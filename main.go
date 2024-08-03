@@ -1,80 +1,58 @@
 package main
 
 import (
-	"io"
 	"log"
-	"os"
 
-	graphviz "github.com/goccy/go-graphviz"
 	"github.com/rishinair11/flux-ks-graph/pkg/graph"
 	"github.com/rishinair11/flux-ks-graph/pkg/resource"
+	"github.com/rishinair11/flux-ks-graph/pkg/serve"
+	"github.com/rishinair11/flux-ks-graph/pkg/util"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 func main() {
-	var inputFile string
-	var outputFile string
+	var (
+		inputFile      string
+		outputFile     string
+		serverPort     string
+		graphDirection string
+		noServe        bool
+	)
 
 	rootCmd := &cobra.Command{
 		Use:   "flux-graph",
 		Short: "Processes a Flux Kustomization tree and generates a graph",
 		Run: func(cmd *cobra.Command, _ []string) {
-			var yamlBytes []byte
-			var err error
-
-			// Read YAML input
-			yamlBytes, err = readInput(inputFile)
+			rt, err := resource.NewResourceTree(inputFile)
 			if err != nil {
-				log.Fatalf("Failed to read YAML: %v", err)
-			}
-
-			// Unmarshal YAML into ResourceTree
-			t := &resource.ResourceTree{}
-			if err := yaml.Unmarshal(yamlBytes, t); err != nil {
-				log.Fatalf("Failed to unmarshal YAML: %v", err)
+				log.Fatalf("Failed to initialize ResourceTree: %v", err)
 			}
 
 			// Process the graph
-			graph, err := graph.ProcessGraph(t)
+			graph, err := graph.ProcessGraph(rt, graphDirection)
 			if err != nil {
 				log.Fatalf("Failed to construct graph: %v", err)
 			}
 
-			gvGraph, err := graphviz.ParseBytes([]byte(graph.String()))
-			if err != nil {
-				log.Fatalf("Failed to parse graph dot string: %v", err)
-			}
-			defer gvGraph.Close()
-
-			f, err := os.Create(outputFile)
-			if err != nil {
-				log.Fatalf("Failed to create output file: %v", err)
-			}
-			defer f.Close()
-
-			if err := graphviz.New().RenderFilename(gvGraph, graphviz.PNG, f.Name()); err != nil {
-				log.Fatalf("Failed to write output graph image: %v", err)
+			if err := util.GenerateGraphSVG(graph, outputFile); err != nil {
+				log.Fatalf("Failed to generate graph SVG: %v", err)
 			}
 
 			log.Println("Generated graph:", outputFile)
+
+			if !noServe {
+				serve.ServeAssets(outputFile, serverPort)
+			}
 		},
 	}
 
 	rootCmd.Flags().StringVarP(&inputFile, "file", "f", "", "Specify input file")
-	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "graph.png", "Specify output file")
+	rootCmd.Flags().StringVarP(&graphDirection, "direction", "d", "TB", "Specify direction of graph (https://graphviz.gitlab.io/docs/attrs/rankdir)")
+	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "graph.svg", "Specify output file")
+	rootCmd.Flags().StringVarP(&serverPort, "port", "p", "9000", "Specify web server port")
+	rootCmd.Flags().BoolVarP(&noServe, "no-serve", "n", false, "Don't serve the graph on a web server")
 
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-// readInput reads the YAML input from a file or stdin
-func readInput(inputFile string) ([]byte, error) {
-	if inputFile != "" {
-		log.Println("Reading from file:", inputFile)
-		return os.ReadFile(inputFile)
-	}
-	log.Println("Reading from STDIN...")
-	return io.ReadAll(os.Stdin)
 }

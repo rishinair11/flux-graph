@@ -1,0 +1,20 @@
+resource:
+  GroupKind:
+    Group: parent-group
+    Kind: parent-kind
+  Name: parent-name
+  Namespace: parent-namespace
+resources:
+- resource:
+    GroupKind:
+      Group: child-group
+      Kind: child-kind
+    Name: child-name
+    Namespace: child-namespace
+  resources: 
+  - resource: 
+      GroupKind:
+        Group: grandchild-group
+        Kind: grandchild-kind
+      Name: grandchild-name
+      Namespace: grandchild-namespace

@@ -10,14 +10,14 @@ import (
 )
 
 // ProcessGraph creates a Graphviz graph from the given ResourceTree
-func ProcessGraph(t *resource.ResourceTree) (*gographviz.Graph, error) {
+func ProcessGraph(t *resource.ResourceTree, rankDir string) (*gographviz.Graph, error) {
 	log.Println("Processing tree...")
 
 	graphName := "fluxgraph"
 	g := gographviz.NewGraph()
 	g.SetDir(true)       //nolint errcheck 'always returns nil'
 	g.SetName(graphName) //nolint errcheck 'always returns nil'
-	if err := g.Attrs.Add(string(gographviz.RankDir), "LR"); err != nil {
+	if err := g.Attrs.Add(string(gographviz.RankDir), rankDir); err != nil {
 		log.Fatal(err)
 	}
 	if err := g.Attrs.Add(string(gographviz.RankSep), "5.0"); err != nil {
