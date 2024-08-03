@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flux Graph</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-size: calc(1vw + 1vh + 0.5vmin);
+            overflow: hidden;
+        }
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+        }
+        #svg-container {
+            flex: 1;
+            margin: 10px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            position: relative;
+        }
+        #svg-object {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        #svg-controls {
+            margin: 10px;
+            text-align: center;
+        }
+        .btn {
+            font-size: 0.5rem;
+            margin: 5px;
+            padding: 0.25rem 0.5rem;
+        }
+        .pan-cursor{
+            cursor: move !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div id="svg-container" class="pan-cursor">
+        <object id="svg-object" type="image/svg+xml" data="/svg"></object>
+    </div>
+    <div id="svg-controls">
+        <button id="zoom-in" class="btn btn-dark">Zoom +</button>
+        <button id="zoom-out" class="btn btn-dark">Zoom -</button>
+        <button id="reset" class="btn btn-dark">Reset</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var svgPanZoomInstance = null;
+        var svgObject = document.getElementById('svg-object');
+        var svgContainer = document.getElementById('svg-container');
+
+        svgObject.addEventListener('load', function() {
+            var svg = svgObject.contentDocument.querySelector('svg');
+
+            if (svg) {
+                svgPanZoomInstance = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,  
+                    maxZoom: 100, 
+                    zoomScaleSensitivity: 0.5,
+                    controlIconsEnabled: false,
+                    customControls: true
+                });
+
+                document.getElementById('zoom-in').addEventListener('click', function() {
+                    if (svgPanZoomInstance) svgPanZoomInstance.zoomIn();
+                });
+
+                document.getElementById('zoom-out').addEventListener('click', function() {
+                    if (svgPanZoomInstance) svgPanZoomInstance.zoomOut();
+                });
+
+                document.getElementById('reset').addEventListener('click', function() {
+                    if (svgPanZoomInstance) {
+                        svgPanZoomInstance.reset();
+                        svgPanZoomInstance.center();
+                    }
+                });
+            } else {
+                console.error("SVG element not found.");
+            }
+        });
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

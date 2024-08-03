@@ -33,3 +33,46 @@ func TestResource_GetKind(t *testing.T) {
 		})
 	}
 }
+
+func TestNewResourceTree(t *testing.T) {
+	testPath := "testdata/test.yaml"
+
+	want := &ResourceTree{
+		Resource: Resource{
+			GroupKind: GroupKind{
+				Group: "parent-group",
+				Kind:  "parent-kind",
+			},
+			Name:      "parent-name",
+			Namespace: "parent-namespace",
+		},
+		Resources: []ResourceTree{
+			{
+				Resource: Resource{
+					GroupKind: GroupKind{
+						Group: "child-group",
+						Kind:  "child-kind",
+					},
+					Name:      "child-name",
+					Namespace: "child-namespace",
+				},
+				Resources: []ResourceTree{
+					{
+						Resource: Resource{
+							GroupKind: GroupKind{
+								Group: "grandchild-group",
+								Kind:  "grandchild-kind",
+							},
+							Name:      "grandchild-name",
+							Namespace: "grandchild-namespace",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	got, err := NewResourceTree(testPath)
+	assert.NoError(t, err)
+	assert.Equal(t, want, got)
+}
