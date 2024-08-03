@@ -7,9 +7,16 @@ on:
       - "*"
 
 jobs:
-  build-and-release-linux:
-    name: Build and Release Linux Binaries
-    runs-on: ubuntu-latest
+  build-and-release:
+    name: Build and Release
+    runs-on: ${{ matrix.host.os }}
+    strategy:
+      matrix:
+        host:
+          - os: ubuntu-latest
+            goos: linux
+          - os: macos-latest
+            goos: darwin
 
     steps:
       - name: Checkout code
@@ -19,11 +26,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 1.22.3
-      
+
       - name: Install dependencies
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y gcc-aarch64-linux-gnu
+          if [ "${{ matrix.host.os }}" == "ubuntu-latest" ]; then
+            sudo apt-get update -y
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+          elif [ "${{ matrix.host.os }}" == "macos-latest" ]; then
+            brew install coreutils
+          fi
+
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
 
       - name: Cache Go modules
@@ -41,43 +53,6 @@ jobs:
         with:
           distribution: goreleaser
           version: "v2.1.0"
-          args: release --clean --parallelism=1 --config=.goreleaser-linux.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-
-  build-and-release-darwin:
-    name: Build and Release Darwin Binaries
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1.22.3
-
-      - name: Install dependencies
-        run: |
-          brew install coreutils
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-
-      - name: Cache Go modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v6
-        with:
-          distribution: goreleaser
-          version: "v2.0.1"
-          args: release --clean --parallelism=1 --config=.goreleaser-darwin.yml
+          args: release --clean --parallelism=1 --config=.goreleaser-${{ matrix.host.goos }}.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
