@@ -31,6 +31,18 @@ Understanding the relationships between Kubernetes resources managed by Flux can
 
 ### Installation
 
+#### Easy installation
+
+Run the following command to easily install the binary:
+```bash
+curl -s https://raw.githubusercontent.com/rishinair11/flux-graph/main/install.sh | sudo bash
+```
+
+To specify a version to install, set `FLUX_GRAPH_VERSION` to your preffered version:
+```bash
+curl -s https://raw.githubusercontent.com/rishinair11/flux-graph/main/install.sh | FLUX_GRAPH_VERSION=0.4.0 sudo bash
+```
+
 #### Clone the Repository:
 ```bash
 git clone https://github.com/rishinair11/flux-graph.git
